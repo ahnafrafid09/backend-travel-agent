@@ -1,0 +1,5 @@
+# .gitignore
+.env
+.env.production
+/node_modules
+/public
