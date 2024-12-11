@@ -1,7 +1,6 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../config/database.js';
-import Category from './Category.js';
-import Translation from './Translation.js';
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database.js');
+const Category = require('./Category.js');
 
 const SubCategory = sequelize.define('sub_category', {
     id: {
@@ -11,22 +10,25 @@ const SubCategory = sequelize.define('sub_category', {
     },
     slug: {
         type: DataTypes.STRING,
-        unique: true
+        unique: true,
+        set(value) {
+            this.setDataValue('slug', value.replace(/\s+/g, '-').toLowerCase())
+        }
     },
     categoryId: {
         type: DataTypes.INTEGER,
         references: {
             model: Category,
             key: 'id'
-        }
+        },
+        allowNull: false,
     }
 }, {
     timestamps: true,
     freezeTableName: true
 });
 
-
-Category.hasMany(SubCategory, { foreignKey: 'categoryId' });
+Category.hasMany(SubCategory, { foreignKey: 'categoryId' })
 SubCategory.belongsTo(Category, { foreignKey: 'categoryId' });
 
-export default SubCategory
+module.exports = SubCategory;

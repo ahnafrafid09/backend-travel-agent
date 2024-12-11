@@ -1,15 +1,15 @@
-import Category from "../models/Category.js";
-import Translation from "../models/Translation.js";
-import SubCategory from "../models/SubCategory.js";
+const Category = require("../models/Category.js");
+const Translation = require("../models/Translation.js");
+const SubCategory = require("../models/SubCategory.js");
 
-export const GetSubCategory = async (req, res) => {
-    const { lang } = req.query
+const GetSubCategory = async (req, res) => {
+    const { lang } = req.query;
     try {
         const response = await SubCategory.findAll({
             attributes: ["slug", "id"],
             include: [{
                 model: Translation,
-                attributes: ["attribute", "value"],
+                attributes: ["attribute", "value", "lang"],
                 where: lang ? { lang: lang } : {},
                 as: "translations"
             }, {
@@ -22,25 +22,24 @@ export const GetSubCategory = async (req, res) => {
                     as: "translations"
                 }
             }]
-        })
-        if (response.length === 0) return res.status(404).json({ statusCode: 404, status: "not found", message: "Sub Category Not Found" })
-        res.status(200).json({ statusCode: 200, status: "success", message: "Search Sub Category Success", data: response })
+        });
+        if (response.length === 0) return res.status(404).json({ statusCode: 404, status: "not found", message: "Sub Category Not Found" });
+        res.status(200).json({ statusCode: 200, status: "success", message: "Search Sub Category Success", data: response });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ statusCode: 500, status: "internal server error", message: "Internal Server Error" })
-
+        res.status(500).json({ statusCode: 500, status: "internal server error", message: "internal server error", error: error });
     }
-}
+};
 
-export const GetSubCategoryById = async (req, res) => {
-    const { lang } = req.query
-    const { id } = req.params
+const GetSubCategoryById = async (req, res) => {
+    const { lang } = req.query;
+    const { id } = req.params;
     try {
-        const response = await Category.findByPk(id, {
+        const response = await SubCategory.findByPk(id, {
             attributes: ["slug", "id"],
             include: [{
                 model: Translation,
-                attributes: ["attribute", "value"],
+                attributes: ["attribute", "value", "lang"],
                 where: lang ? { lang: lang } : {},
                 as: "translations"
             }, {
@@ -48,21 +47,21 @@ export const GetSubCategoryById = async (req, res) => {
                 attributes: ["slug", "id"],
                 include: {
                     model: Translation, as: "translations",
-                    attributes: ["attribute", "value"],
+                    attributes: ["attribute", "value", "lang"],
                     where: lang ? { lang: lang } : {},
                     as: "translations"
                 }
             }]
-        })
-        if (response.length === 0) return res.status(404).json({ statusCode: 404, status: "not found", message: "Sub Category Not Found" })
-        res.status(200).json({ statusCode: 200, status: "success", message: "Search Sub Category Success", data: response })
+        });
+        if (response === null) return res.status(404).json({ statusCode: 404, status: "not found", message: "Sub Category Not Found" });
+        res.status(200).json({ statusCode: 200, status: "success", message: "Search Sub Category Success", data: response });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ statusCode: 500, status: "internal server error", message: "Internal Server Error" })
+        res.status(500).json({ statusCode: 500, status: "internal server error", message: "internal server error", error: error });
     }
-}
+};
 
-export const CreateSubCategory = async (req, res) => {
+const CreateSubCategory = async (req, res) => {
     try {
         const { slug, translations, categoryId } = req.body;
 
@@ -81,11 +80,11 @@ export const CreateSubCategory = async (req, res) => {
         res.status(201).json({ statusCode: 201, status: 'created', message: 'Sub Category created successfully', data: subCategory });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ statusCode: 500, status: "internal server error", message: "Internal Server Error" });
+        res.status(500).json({ statusCode: 500, status: "internal server error", message: "internal server error", error: error });
     }
-}
+};
 
-export const UpdateSubCategory = async (req, res) => {
+const UpdateSubCategory = async (req, res) => {
     const { id } = req.params;
     try {
         const { slug, translations, categoryId } = req.body;
@@ -101,6 +100,7 @@ export const UpdateSubCategory = async (req, res) => {
                     entityId: id,
                     entityType: 'sub_category',
                     lang: t.lang,
+                    attribute: 'name_sub_category',
                     value: t.name
                 })));
             }
@@ -110,11 +110,11 @@ export const UpdateSubCategory = async (req, res) => {
         }
     } catch (error) {
         console.log(error);
-        res.status(500).json({ statusCode: 500, status: "internal server error", message: "Internal Server Error" });
+        res.status(500).json({ statusCode: 500, status: "internal server error", message: "internal server error", error: error });
     }
 };
 
-export const DeleteSubCategory = async (req, res) => {
+const DeleteSubCategory = async (req, res) => {
     const { id } = req.params;
     try {
         const deleted = await SubCategory.destroy({ where: { id } });
@@ -126,6 +126,14 @@ export const DeleteSubCategory = async (req, res) => {
         }
     } catch (error) {
         console.log(error);
-        res.status(500).json({ statusCode: 500, status: "internal server error", message: "Internal Server Error" });
+        res.status(500).json({ statusCode: 500, status: "internal server error", message: "internal server error", error: error });
     }
+};
+
+module.exports = {
+    GetSubCategory,
+    GetSubCategoryById,
+    CreateSubCategory,
+    UpdateSubCategory,
+    DeleteSubCategory
 };

@@ -1,5 +1,6 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../config/database.js';
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database.js');
+
 
 const Category = sequelize.define('category', {
     id: {
@@ -9,11 +10,14 @@ const Category = sequelize.define('category', {
     },
     slug: {
         type: DataTypes.STRING,
-        unique: true
+        unique: true,
+        set(value) {
+            this.setDataValue('slug', value.replace(/\s+/g, '-').toLowerCase())
+        }
     }
 }, {
-    timestamps: true, freezeTableName: true
+    timestamps: true,
+    freezeTableName: true
 });
 
-export default Category
-
+module.exports = Category;

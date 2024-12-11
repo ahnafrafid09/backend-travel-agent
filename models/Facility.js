@@ -1,20 +1,28 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../config/database.js';
-import Translation from './Translation.js';
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database.js');
+const Category = require('./Category.js');
+
 
 const Facility = sequelize.define('facility', {
-    id: {
-        type: DataTypes.INTEGER,
+    uuid_facility: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
-        autoIncrement: true
     },
-    facility_type: {
-        type: DataTypes.STRING,
-        allowNull: false
+    categoryId: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: Category,
+            key: 'id'
+        },
+        onDelete: 'SET NULL',
+        onUpdate: "CASCADE"
     }
 }, {
     freezeTableName: true,
     timestamps: true
 });
+Category.hasMany(Facility, { foreignKey: 'categoryId' })
+Facility.belongsTo(Category, { foreignKey: 'categoryId' });
 
-export default Facility;
+module.exports = Facility;

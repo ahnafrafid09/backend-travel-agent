@@ -1,10 +1,11 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../config/database.js';
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database.js');
+
 
 const User = sequelize.define('user', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
+    uuid_user: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
     },
     username: {
@@ -21,11 +22,18 @@ const User = sequelize.define('user', {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    role: {
+        type: DataTypes.ENUM("Admin", "User"),
+        defaultValue: "User",
+        allowNull: false
+    },
     refreshToken: {
         type: DataTypes.TEXT,
     }
 }, {
-    timestamps: true, freezeTableName: true
+    timestamps: true,
+    freezeTableName: true
 });
 
-export default User;
+
+module.exports = User;

@@ -1,7 +1,6 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../config/database.js';
-import Category from './Category.js';
-import Facility from './Facility.js';
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database.js');
+
 
 const Translation = sequelize.define('translation', {
     id: {
@@ -18,7 +17,7 @@ const Translation = sequelize.define('translation', {
         allowNull: false,
     },
     entityId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
     },
     attribute: {
@@ -36,4 +35,4 @@ const Translation = sequelize.define('translation', {
 
 
 
-export default Translation;
+module.exports = Translation
