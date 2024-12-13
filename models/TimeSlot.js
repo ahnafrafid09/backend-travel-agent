@@ -29,7 +29,7 @@ const TimeSlot = sequelize.define('timeslot', {
     freezeTableName: true
 });
 
-Schedule.hasMany(TimeSlot, { foreignKey: 'scheduleUUID' })
-TimeSlot.belongsTo(Schedule, { foreignKey: 'scheduleUUID' });
+Schedule.hasMany(TimeSlot, { foreignKey: 'scheduleUUID', as: 'timeSlots' })
+TimeSlot.belongsTo(Schedule, { foreignKey: 'scheduleUUID', as: 'schedule' });
 
 module.exports = TimeSlot;

@@ -9,6 +9,7 @@ const path = require('path');
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 const { fileURLToPath } = require('url');
+const sequelize = require("../config/database.js");
 const { dirname } = require('path');
 const ProductPrice = require("../models/ProductPrice.js");
 const ProductDiscount = require("../models/ProductDiscount.js");
@@ -37,6 +38,7 @@ const GetProducts = async (req, res) => {
                         },
                         {
                             model: TimeSlot,
+                            as: "timeSlots",
                             attributes: ["start_time", "end_time", "scheduleUUID"],
                             include: {
                                 model: Translation,
@@ -69,13 +71,13 @@ const GetProducts = async (req, res) => {
                 },
                 {
                     model: Facility,
-                    through: { attributes: [] },
+                    through: { attributes: ["facilityUUID"] },
                     include: {
                         model: Translation,
                         attributes: ['value', 'attribute'],
                         where: lang ? { lang: lang } : {},
                         as: "translations",
-                    }
+                    },
                 }, {
                     model: ProductPrice,
                     attributes: ["uuid_product_price", "price", "discount_price_amount", "status", "discountUUID"],
@@ -122,12 +124,13 @@ const GetProducts = async (req, res) => {
     }
 };
 
-const GetProductById = async (req, res) => {
+const GetProductByUUID = async (req, res) => {
     const { lang } = req.query
     const { id } = req.params
+    const uuid_product = id
 
     try {
-        const response = await Product.findByPk({ uuid_product: id }, {
+        const response = await Product.findByPk(uuid_product, {
             attributes: ['uuid_product', 'image_url'],
             include: [
                 {
@@ -148,7 +151,8 @@ const GetProductById = async (req, res) => {
                         },
                         {
                             model: TimeSlot,
-                            attributes: ["uuid_timeslot", "start_time", "end_time", "scheduleUUID"],
+                            as: "timeSlots",
+                            attributes: ["start_time", "end_time", "scheduleUUID"],
                             include: {
                                 model: Translation,
                                 attributes: ["attribute", "value"],
@@ -180,13 +184,13 @@ const GetProductById = async (req, res) => {
                 },
                 {
                     model: Facility,
-                    through: { attributes: [] },
+                    through: { attributes: ["facilityUUID"] },
                     include: {
                         model: Translation,
                         attributes: ['value', 'attribute'],
                         where: lang ? { lang: lang } : {},
                         as: "translations",
-                    }
+                    },
                 }, {
                     model: ProductPrice,
                     attributes: ["uuid_product_price", "price", "discount_price_amount", "status", "discountUUID"],
@@ -208,6 +212,7 @@ const GetProductById = async (req, res) => {
                 }
             ]
         });
+
 
         if (response.length === 0) {
             return res.status(404).json({
@@ -286,14 +291,12 @@ const CreateProduct = async (req, res) => {
             image_url: url
         });
 
-        // Menambahkan fasilitas jika ada
         if (facilityUUID && facilityUUID.length > 0) {
-            const facilities = await Facility.findAll({
-                where: { uuid_facility: facilityUUID }
-            });
-            if (facilities.length > 0) {
-                await product.addFacilities(facilities, { through: { selfGranted: false } });
-            }
+            const facilityData = JSON.parse(facilityUUID).map(uuid => ({
+                productUUID: product.uuid_product,
+                facilityUUID: uuid,
+            }));
+            await sequelize.models.ProductFacilities.bulkCreate(facilityData)
         }
 
         // Menyimpan data terjemahan produk
@@ -339,6 +342,8 @@ const CreateProduct = async (req, res) => {
                     discount_price_amount = priceData.price - discount.discount_value;
                 }
             }
+        } else {
+            discount_price_amount = priceData.price
         }
 
         const productPrice = await ProductPrice.create({
@@ -395,7 +400,7 @@ const CreateProduct = async (req, res) => {
                     });
                     if (timeSlot.translations && timeSlot.translations.length > 0) {
                         const timeSlotTranslations = timeSlot.translations.map(t => ({
-                            entityId: newTimeSlot.id,
+                            entityId: newTimeSlot.uuid_timeslot,
                             lang: t.lang,
                             entityType: 'time',
                             attribute: 'desc_time',
@@ -431,5 +436,6 @@ const CreateProduct = async (req, res) => {
 
 module.exports = {
     GetProducts,
+    GetProductByUUID,
     CreateProduct
 }

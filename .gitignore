@@ -2,4 +2,4 @@
 .env
 .env.production
 /node_modules
-/public
+/public/product/*
