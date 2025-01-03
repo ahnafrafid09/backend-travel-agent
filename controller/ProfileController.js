@@ -1,5 +1,5 @@
 const User = require("../models/User.js");
-const Profile = require("../models/Profile.js");
+const Profile = require("../models/data_master/Profile.js");
 
 const GetProfile = async (req, res) => {
     const userId = req.user.userId

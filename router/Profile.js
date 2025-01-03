@@ -2,11 +2,11 @@ const express = require("express");
 const { CreateProfile, UpdateProfile, GetProfile } = require("../controller/ProfileController");
 const { VerifyToken } = require("../middleware/VerifyToken.js")
 
-const Router = express.Router();
+const ProfileRoute = express.Router();
 
-Router.get("/", VerifyToken, GetProfile);
-Router.post("/", VerifyToken, CreateProfile);
-Router.patch("/", VerifyToken, UpdateProfile)
+ProfileRoute.get("/", VerifyToken, GetProfile);
+ProfileRoute.post("/", VerifyToken, CreateProfile);
+ProfileRoute.patch("/", VerifyToken, UpdateProfile)
 
 
-module.exports = Router;
+module.exports = ProfileRoute;

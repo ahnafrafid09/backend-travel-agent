@@ -1,12 +1,13 @@
 const express = require("express");
 const { GetSubCategory, GetSubCategoryById, CreateSubCategory, UpdateSubCategory, DeleteSubCategory } = require("../controller/SubCategoryController.js");
+const VerifyLanguage = require("../middleware/VerifyLanguage.js");
 
-const Router = express.Router()
+const SubCategoryRoute = express.Router()
 
-Router.get('/', GetSubCategory)
-Router.get('/:id', GetSubCategoryById)
-Router.post('/', CreateSubCategory)
-Router.patch('/:id', UpdateSubCategory)
-Router.delete('/:id', DeleteSubCategory)
+SubCategoryRoute.get('/', VerifyLanguage, GetSubCategory)
+SubCategoryRoute.get('/:id', VerifyLanguage, GetSubCategoryById)
+SubCategoryRoute.post('/', CreateSubCategory)
+SubCategoryRoute.patch('/:id', UpdateSubCategory)
+SubCategoryRoute.delete('/:id', DeleteSubCategory)
 
-module.exports = Router;
+module.exports = SubCategoryRoute;
